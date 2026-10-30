@@ -1,0 +1,20 @@
+# Example environment only, not a lockfile for the historical experiments.
+# Use Python 3.10, then separately install the correct CPU/CUDA PyTorch wheel
+# from https://docs.pytorch.org/get-started/previous-versions/
+name: pulsebridge-example
+channels:
+  - conda-forge
+dependencies:
+  - python=3.10
+  - pip
+  - pip:
+      - numpy==1.26.4
+      - scipy==1.13.1
+      - h5py==3.11.0
+      - pandas==2.2.2
+      - scikit-learn==1.5.2
+      - opencv-python-headless==4.10.0.84
+      - Pillow==10.4.0
+      - matplotlib==3.9.2
+      - tqdm==4.66.5
+      - pytest==8.3.3

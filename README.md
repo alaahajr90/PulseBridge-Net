@@ -21,6 +21,46 @@ There are **not** multiple active stage versions in this folder layout. Some fil
 - Stage-3 selected A2: `V11_VARIANCE_WEIGHT=0.0` (this does **not** remove the waveform std loss from Stage 2). Matched-state D03 correction is conditional on paired segments.
 - Full-development final fitting described in manuscript: Stage 2 for 118 epochs and Stage 3 for 13 epochs, with frozen checkpoints before independent evaluation; exact scripts/records are not supplied.
 
+
+## Installation and environment documentation
+
+**Research status:** this is a *pre-release, manuscript-aligned candidate*, not an
+independently reproduced version of the published experiments. The original
+workstation's exact historical dependency versions have **not** been supplied;
+the pins below are an **illustrative, recommended installation profile** for
+Python 3.10, not a claim about the training environment used to generate the
+reported results.
+
+- [Installation instructions (Linux, Conda, CPU/CUDA)](docs/INSTALLATION.md)
+- [Dependency purpose and example exact versions](docs/DEPENDENCIES.md)
+- [Original-environment capture instructions](docs/ENVIRONMENT_PROVENANCE.md)
+- [Scientific/public-release readiness checklist](docs/RELEASE_READINESS.md)
+- [`requirements-recommended.txt`](requirements-recommended.txt) — suggested
+  exact versions for non-PyTorch packages; install PyTorch separately for your
+  CUDA/CPU platform.
+- [`environment.example.yml`](environment.example.yml) — example Conda environment
+  (not the historical training environment).
+
+Fast setup on a **supported Linux computer** with Python 3.10, after
+installing the platform-appropriate PyTorch 2.5.1 wheel following the
+[official PyTorch previous-version instructions](https://docs.pytorch.org/get-started/previous-versions/):
+
+```bash
+python -m pip install -r requirements-recommended.txt
+python -m unittest discover -s tests -v
+python scripts/capture_environment.py
+python scripts/release_readiness_check.py
+```
+
+**Do not run full training or blind-test evaluation from this staging archive**:
+`preprocessing/Data_QC_v2` source, archived frozen manifests, historical Stage-2
+v4 proof, final model checkpoints and complete cross-stage integration still
+require verification. Historical source files contain absolute paths from the
+original Linux workstation; they are not portable without explicit mapping.
+
+Public visibility is **not yet recommended**. See the release-readiness report
+for the precise scientific, technical, and rights-related blockers.
+
 ## Traceability
 
 `provenance/` records the SHA-256 fingerprints of the source files used in this single-version staging package. Stage3's A2 edit relative to v20 was one loss-weight configuration change, **not** independently proven identical to the original recorded A2 training script. Original source archives and the earlier comprehensive audit must be retained in private storage.

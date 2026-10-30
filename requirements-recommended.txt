@@ -1,0 +1,13 @@
+# Suggested Python 3.10 / Linux example pins (NOT original experiment lock).
+# Install platform-appropriate torch==2.5.1 first (CPU/CUDA; see docs/INSTALLATION.md).
+# Do not install both opencv-python and opencv-python-headless in one environment.
+numpy==1.26.4
+scipy==1.13.1
+h5py==3.11.0
+pandas==2.2.2
+scikit-learn==1.5.2
+opencv-python-headless==4.10.0.84
+Pillow==10.4.0
+matplotlib==3.9.2
+tqdm==4.66.5
+pytest==8.3.3
