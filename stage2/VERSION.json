@@ -1,0 +1,17 @@
+{
+  "package": "PulseBridge-Net Stage 2",
+  "version": "paper_aligned_derived_v4_candidate",
+  "parent_source": "uploaded code stage2_new.zip (FINAL_v3)",
+  "status": "source_equations_aligned_not_historical_verified",
+  "manuscript_equations": [
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17
+  ],
+  "blind_test_policy": "unchanged: excluded during training and model selection",
+  "note": "Requires original v4 sources and checkpoint hashes for provenance verification"
+}

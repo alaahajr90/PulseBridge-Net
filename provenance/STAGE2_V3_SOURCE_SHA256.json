@@ -1,0 +1,19 @@
+{
+  "parent_archive": "code stage2_new.zip",
+  "source_version": "FINAL_v3",
+  "sha256_original_python_sources": {
+    "create_stage2_publication_outputs.py": "d7f28254fd0190204b9dcd74b450212b38d61230f8375a012cb937c9230f610c",
+    "data_stage2.py": "4b0231ea664e2e731307d7afcff1239d5bc548ee2bab9eca506d54d346f10247",
+    "runtime_stage2.py": "014aa4721f8bf262bf1cbbb16fa7bcd70872da9aef21185fb9920da63d0778b0",
+    "inspect_stage2.py": "03aa6d1016fde6783e2170d1f8a64cdd07f531a8909c402565918c87e6fdc6dc",
+    "training_contract.py": "ede32f15390dff8b3c199baa7f28494c1262278dd625796faa67fe83f873b1bf",
+    "diagnostics_stage2.py": "28d6426b853b9a6a67c8f30ec8a94423706583f21039bae9482fe4de44724c34",
+    "model_stage2.py": "a86f2a144785ee44f6d81161e5f041109d7c1430860603592671a9d5e33bdd94",
+    "train_stage2_cv.py": "a8e0263d16c00040c4ea0e45ed6c8e0353d27116967262abe81924b8a2dd1d78",
+    "protocol_stage2.py": "6cd8c25c290d49f49349076809da6396e4d02a0f8b7cad29cdf3b76f474d4748",
+    "metrics_stage2.py": "a8b724cdad406782c164c5926bb0f6fc32556c130006a6513441eb5edee6c02c",
+    "losses_stage2.py": "9c1ddb38f4eddbd23413122c5eb024de320107c64368e1008d9a3ea67b2a4ecb",
+    "io_utils.py": "94fc7abf6c5322381eb3463b7abaca733ee0884162fbb640273515992ee87399",
+    "config_stage2.py": "0c8b4432a145796dbbfa172511ea5720b01315ae51c5fc200c6a8e6d1208c0d9"
+  }
+}

@@ -1,0 +1,44 @@
+# Datasets and human-subject material must not be committed.
+*.h5
+*.hdf5
+*.npz
+*.npy
+*.avi
+*.mp4
+*.mov
+*.mkv
+*.pkl
+*.pth
+*.pt
+*.ckpt
+*.safetensors
+*.csv
+*.parquet
+*.jsonl
+*.log
+*.sqlite*
+
+# Exception: the source SHA provenance CSV is deliberately public.
+!provenance/SOURCE_FILES_SHA256.csv
+
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+.venv*/
+.env
+.DS_Store
+.ipynb_checkpoints/
+results/
+cache/
+output/
+outputs/
+checkpoints/
+wandb/
+runs/
+artifacts/
+
+# Frozen split and QC manifest files must be reviewed before public release.
+frozen_subject_split.json
+development_10folds.json
+04_*_manifest.csv

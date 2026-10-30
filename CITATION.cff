@@ -1,0 +1,16 @@
+cff-version: 1.2.0
+message: "Please cite the accompanying PulseBridge-Net manuscript when using this research code."
+title: "PulseBridge-Net: rPPG-Guided Multi-Task Estimation of Blood Pressure and Arterial Stiffness from Facial Video"
+type: software
+authors:
+  - family-names: Hajr
+    given-names: Alaa
+  - family-names: Tarvirdizadeh
+    given-names: Bahram
+  - family-names: Alipour
+    given-names: Khalil
+  - family-names: Zare
+    given-names: Hadi
+  - family-names: Ghamari
+    given-names: Mohammad
+version: 0.1.0-audit

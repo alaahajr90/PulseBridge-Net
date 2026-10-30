@@ -1,0 +1,9 @@
+{
+  "package": "PulseBridge-Net Stage 1",
+  "version": "FINAL_v3",
+  "basis": "Stage_1_PulseRepresentation.zip + Data_QC_v2 frozen Stage-1 manifest",
+  "expected_stage1_manifest_sha256": "70dfba7b07d6a9cc679d07b183d2b7cff17ee6d59033b65bec44dd61b8163878",
+  "blind_policy": "LOCKED_NOT_EVALUATED_IN_STAGE1",
+  "ppg_supervision": false,
+  "sampling": "subject-balanced unique-subject contrastive batches"
+}
