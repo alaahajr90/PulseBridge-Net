@@ -1,11 +1,45 @@
-name: Static source audit (not reproduction)
-on: [push, pull_request]
+name: Data-free source and model smoke tests
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
 jobs:
-  audit:
+  source-and-model-smoke:
     runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      OMP_NUM_THREADS: '2'
+      MKL_NUM_THREADS: '2'
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - name: Checkout source
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - run: python -m unittest discover -s tests -v
+      - name: Install PyTorch CPU for synthetic tests
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install torch==2.5.1 --index-url https://download.pytorch.org/whl/cpu
+      - name: Verify PyTorch and run all data-free unit tests (no skips allowed)
+        run: |
+          python - <<'PY'
+          import torch
+          import unittest
+
+          print('Python/PyTorch CPU smoke test; PyTorch:', torch.__version__)
+          assert torch.__version__.startswith('2.5.1')
+          suite = unittest.defaultTestLoader.discover('tests')
+          result = unittest.TextTestRunner(verbosity=2).run(suite)
+          if not result.wasSuccessful() or result.skipped:
+              raise SystemExit(
+                  f'Tests failed or skipped: failures={len(result.failures)}, '
+                  f'errors={len(result.errors)}, skipped={len(result.skipped)}'
+              )
+          PY
