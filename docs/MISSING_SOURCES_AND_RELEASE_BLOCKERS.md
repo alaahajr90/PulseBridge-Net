@@ -5,10 +5,9 @@ source, training configuration, data reader, final loss with normalized first/se
 and multiscale derivatives, and its frozen CV/final checkpoint fingerprints.
 The supplied file named `code stage2_new.zip` is **v3**, not v4.
 
-**Priority P0** — `Data_QC_v2` scripts used to create exact HDF5 `roi`, `ppg`,
+**Source supplied; integration still pending runtime verification** — `Data_QC_v2` scripts used to create exact HDF5 `roi`, `ppg`,
 `clip_starts`, and the three `04_stage{1,2,3}_manifest.csv` files; provide
-manifest hashes and decision logic including frame-gap handling. Current
-extractors write per-clip `.npz`, which is **not** the training input format.
+manifest hashes and decision logic including frame-gap handling. The canonical HDF5 extractor is now present and SHA-verified; the legacy per-clip NPZ source is not the active pipeline.
 
 **Priority P0** — frozen `frozen_subject_split.json`,
 `development_10folds.json`, and `protocol_manifest.json` (or a privacy-safe

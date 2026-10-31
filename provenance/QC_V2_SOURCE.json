@@ -1,0 +1,129 @@
+{
+  "counts_from_supplied_reports": {
+    "decode_repair_summary": {
+      "already_complete": 0,
+      "blocked_or_error": 0,
+      "exact_original_roi_extractor_reused": true,
+      "queue": 44,
+      "raw_source_files_modified": false,
+      "repair_rule": "n_usable=min(n_meta,n_sync,n_actual_decodable)",
+      "repaired": 44
+    },
+    "extractor_contract_pass": true,
+    "frozen_protocol_exists_in_original_qc_audit": false,
+    "full_audit_summary": {
+      "expected": 3600,
+      "h5_found": 3600,
+      "missing_h5": 0,
+      "roi_good": 3092,
+      "roi_hold": 508,
+      "stage3_labels_finite": 3600,
+      "structurally_bad": 0,
+      "subjects_present": 600,
+      "sync_bad": 9,
+      "sync_good": 3582,
+      "sync_review": 9
+    },
+    "label_integrity_summary": {
+      "bad_groups": 0,
+      "expected": 1200,
+      "subject_state_groups": 1200
+    },
+    "stage_manifests_summary": {
+      "scientific_rule": {
+        "stage1": "STRUCTURAL + ROI; sync is not a gate",
+        "stage2": "STRUCTURAL + ROI + GOOD ppg_sync",
+        "stage3": "STRUCTURAL + ROI + finite BP/rigidity labels; source sync is not a gate"
+      },
+      "stage1": {
+        "hold_recordings": 508,
+        "missing_subject_states": 0,
+        "missing_subjects": 0,
+        "ready_cameras_per_subject_state": {
+          "1": 13,
+          "2": 482,
+          "3": 705
+        },
+        "ready_recordings": 3092,
+        "ready_recordings_per_subject": {
+          "2": 4,
+          "3": 5,
+          "4": 205,
+          "5": 67,
+          "6": 319
+        },
+        "subject_states_with_ready": 1200,
+        "subjects_with_ready": 600
+      },
+      "stage2": {
+        "hold_recordings": 521,
+        "missing_subject_states": 6,
+        "missing_subjects": 1,
+        "ready_cameras_per_subject_state": {
+          "1": 13,
+          "2": 477,
+          "3": 704
+        },
+        "ready_recordings": 3079,
+        "ready_recordings_per_subject": {
+          "2": 8,
+          "3": 5,
+          "4": 201,
+          "5": 66,
+          "6": 319
+        },
+        "subject_states_with_ready": 1194,
+        "subjects_with_ready": 599
+      },
+      "stage3": {
+        "hold_recordings": 508,
+        "missing_subject_states": 0,
+        "missing_subjects": 0,
+        "ready_cameras_per_subject_state": {
+          "1": 13,
+          "2": 482,
+          "3": 705
+        },
+        "ready_recordings": 3092,
+        "ready_recordings_per_subject": {
+          "2": 4,
+          "3": 5,
+          "4": 205,
+          "5": 67,
+          "6": 319
+        },
+        "subject_states_with_ready": 1200,
+        "subjects_with_ready": 600
+      }
+    },
+    "sync_anomaly_summary": {
+      "anomalies": 18,
+      "bad": 9,
+      "policy": "quarantine only for Stage 2 supervision",
+      "ppg_sync_modified": false,
+      "review": 9
+    }
+  },
+  "original_data_qcv2_zip_sha256": "916f7456ab460c51bf4526118e4dcda5815990656a2d877d19b3ab02f0d343c0",
+  "original_extractor_sha256": "86162bc72f93819ae2892d12670ddf2a57481ca9acefef9566f7744c8848308f",
+  "original_qcv2_source_sha256": {
+    "config_qcv2.py": "be9f19bad6b600d2c8d94a5eaf35e6586dc7ff59d7539f6663e10a27fbb613c5",
+    "run_all_qcv2_and_repair.sh": "3ea3b2a02361e7c2303469f4cd9dbfa8148c1f0475e80c773cd0efe8a3085aff"
+  },
+  "original_results_sha256": {
+    "00_source_contract.json": "fea05dfad87451d9ac5121bd2bef18e63f029685a854d163d2db5a4d9b7d6057",
+    "01_decode_repair_report.csv": "b5b1a7e3dfa78fb155a4fa3c3a841f3ce81b23878ec706a292b0ac0f8076acb0",
+    "01_decode_repair_summary.json": "a5b02753b969f77bf784ec68bc3f8687e72397fe0749ef4c11e6134c743bef2d",
+    "02_all_recordings_audit.csv": "0f3528148562ee667a32c361d9595ff7c916c0cd497650467d32bc86a786d29e",
+    "02_full_audit_summary.json": "5b43d0ff8f9d6df646b23dd5e469bee7f1eb99cba2a206b7c8f5556cb6a1d359",
+    "03_label_integrity_summary.json": "b51aef3de10436323f806a7e6295aa73509a8b7ad3a2661a6730f892fc24d307",
+    "04_stage1_manifest.csv": "70dfba7b07d6a9cc679d07b183d2b7cff17ee6d59033b65bec44dd61b8163878",
+    "04_stage2_manifest.csv": "df13f0e60a67d2a79266b2af76e3bd2c3aa29a103c49877525a250368051d9b8",
+    "04_stage3_manifest.csv": "9ab7d652dd75c02bc8e682d3f608fadd1f6fb9844f8b369e16443e8564aefa53",
+    "04_stage_manifests_summary.json": "cc1a65e2526076eca5f55b9a4988cff5bd6d384d681604faf1e20e022d591d33",
+    "05_sync_source_anomalies.csv": "ff83946e24f4232674bded4ec1c5e142e5e4460ee9ec9b5ef4f7b40b35e9b4f1",
+    "06_protocol_roster_audit.json": "b6780f7cb5afbc83d775263277acbf5456d97283b6437c012d734dfe685d8965",
+    "07_final_preflight_v2.json": "e98f442d652e78425f3f50d24a6f562fd7596a7643125884b06ccd04ed90514d"
+  },
+  "privacy_notice": "No subject IDs, participant-level measurements, patient records, or absolute source paths are redistributed in this manifest."
+}

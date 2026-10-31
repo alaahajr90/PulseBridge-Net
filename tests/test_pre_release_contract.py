@@ -22,9 +22,11 @@ class TestPreReleaseContract(unittest.TestCase):
         self.assertTrue((ROOT/'stage1'/'model_stage1.py').exists())
         self.assertTrue((ROOT/'stage1'/'train_stage1_cv.py').exists())
 
-    def test_stage2_present_and_preprocessing_still_unverified(self):
+    def test_stage2_and_original_qc_sources_present(self):
         self.assertTrue((ROOT/'stage2'/'model_stage2.py').exists())
-        self.assertFalse((ROOT/'preprocessing'/'Data_QC_v2.py').exists())
+        self.assertTrue((ROOT/'preprocessing'/'extract_mcd_rppg_clips_compact.py').is_file())
+        self.assertTrue((ROOT/'preprocessing'/'qcv2'/'07_final_preflight_v2.py').is_file())
+        self.assertTrue((ROOT/'docs'/'QC_V2_REPORT.md').is_file())
         self.assertIn('PRE-RELEASE', (ROOT/'README.md').read_text())
 
 if __name__ == '__main__':

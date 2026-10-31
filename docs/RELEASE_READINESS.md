@@ -11,7 +11,7 @@ reproducing implementation of the published results.
 | Code present for Stage 1 | Provided source | Initial code audit only |
 | Manuscript-aligned Stage 2 equations | Derived v3-to-v4 candidate; 10 synthetic tests previously passed | Historical v4 source/checkpoint provenance still missing |
 | Selected Stage 3 A2 loss | `V11_VARIANCE_WEIGHT=0.0` in candidate | Dated A2 training/final-fit contracts not supplied |
-| **Canonical preprocessing/Data_QC_v2** | README placeholder only | **BLOCKER** |
+| **Canonical preprocessing/Data_QC_v2** | Original QC source supplied; exact extractor hash matches archived contract, scripts integrated, outputs withheld for privacy | **SOURCE RESOLVED; end-to-end rerun not verified** |
 | Frozen 540/60 and 10-fold provenance | Some expected hashes stored in configs | **BLOCKER:** exact source files and validation missing |
 | Stage-2 F7/rPPG cache traceability | Paths/hash claims in paper and configs | **BLOCKER:** verified artifacts not supplied |
 | End-to-end subject-disjoint reproduction | Not executed from release bundle | **BLOCKER** for full-reproduction claim |
@@ -22,7 +22,7 @@ reproducing implementation of the published results.
 
 ## Scientific integrity requirements
 
-1. Retrieve genuine canonical `Data_QC_v2` source and explain HDF5 ROI/PPG
+1. Audit the supplied canonical `Data_QC_v2` source and explain HDF5 ROI/PPG
    content, clip alignment, QC thresholds, camera IDs and manifests. Do not
    substitute the legacy NPZ clip extractor without documenting the change.
 2. Confirm the code/checkpoint provenance of Stage-2 historical **v4**.
@@ -46,3 +46,5 @@ Keep the repository **Private** while unresolved P0 gates remain. If published
 as an *incomplete pre-release* with all limitations prominent, that is a
 separate transparency decision and does not justify claiming the historical
 figures have been independently reproduced.
+
+**2026-10-30 update:** original Data_QC_v2 scripts now included in `preprocessing/qcv2`; exact compact extractor verified. Individual QC outputs withheld. Frozen 540/60 and historical training provenance remain open.
