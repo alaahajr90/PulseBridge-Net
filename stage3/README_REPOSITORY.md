@@ -1,18 +1,22 @@
-# Stage 3 selected A2 (λvar=0)
+# Stage 3 — authenticated original selected A2 source
 
-Derived from the uploaded v20 source. The **only source change** relative to
-`../stage3_v20_reference/` is in `config_stage3.py`:
+The 13 core Python source files in this directory are the **exact originals**
+from the Linux `A2_NoVarianceLoss` experiment, with byte-identical SHA-256
+hashes to the final-development A2 training contract. See
+[`docs/STAGE3_A2_ORIGINAL_SOURCE_AUDIT.md`](../docs/STAGE3_A2_ORIGINAL_SOURCE_AUDIT.md)
+and [`provenance/STAGE3_A2_ORIGINAL_SOURCE_SHA256.json`](../provenance/STAGE3_A2_ORIGINAL_SOURCE_SHA256.json).
 
-```
-V11_VARIANCE_WEIGHT = 0.05   # original v20 reference
-V11_VARIANCE_WEIGHT = 0.0    # selected A2 manuscript configuration
-```
+**A2 selected objective**: `V11_VARIANCE_WEIGHT=0.0` (where the reference v20
+configuration used `0.05`). The Stage-2 waveform standard-deviation objective
+remains unchanged. Historical final-development A2 contract: 13 epochs,
+physical batch size 8, learning rate `1.5e-4`, weight decay `2e-4`, seed 42,
+paired-loss coefficient 0.20. The `train_stage3_cv.py` file implements the
+cross-validation stage; the separately fingerprinted final-development trainer
+was not located in the searched Linux project.
 
-All Stage-3 model, loss, training and paired residual code is preserved.
-The Stage-2 waveform `W_STD=0.25` objective is not disabled by this Stage-3
-change. This repository does NOT prove historical A2 runs employed precisely
-this published file without the corresponding training contracts/checkpoints.
-
-For actual runs: original scripts contain absolute historical paths and expect
-preexisting frozen split, Stage-2 v4 caches and training manifests; do not run
-on patient data until the path/provenance audit is complete.
+Historical filenames with older version suffixes remain for internal imports;
+these should not be interpreted as multiple simultaneously selected models.
+Source paths point to the original Linux workstation and require deliberate
+mapping to run on another system. **No private subject data, weights, caches,
+or frozen test outcomes are redistributed.** Source-level authenticity alone
+does not establish full numerical reproducibility of reported metrics.

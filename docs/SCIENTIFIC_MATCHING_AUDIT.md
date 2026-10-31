@@ -1,22 +1,24 @@
-# PulseBridge-Net — updated source/manuscript scientific audit
+# PulseBridge-Net — source/manuscript scientific matching audit
 
 Reference manuscript: `main(20261030-154034).pdf` (42 pages).
-This is a source-level matching audit, **not** a repetition of data training,
-benchmark outcomes, or one-time independent evaluation.
+This audit compares source evidence with manuscript statements; it does **not**
+repeat model training, independent testing, or physiological metric computation.
 
-| Subject | Source evidence | Status |
+| Component | Evidence | Status |
 |---|---|---|
-| Data QC | authenticated original extractor and Data_QC_v2 modules | source received; real-data rerun not performed |
-| Frozen protocol | Linux original split/fold hashes match Stage3 expected hashes; 540/60, 10x 486/54 | independently checked from workstation report |
-| Stage1 | original 7-Conv3D SSL source; no raw medical targets | structure inspected |
-| Stage2 | **genuine** original Linux v4 source | principal Python hashes match workstation audit |
-| Stage2 morphology | `normalized_d1_shape`, `normalized_d2_shape`, multi-scale increments, Eq. (11–17) | implemented in original v4; synthetic unit tests |
-| Stage2 output F7 | `forward_late_features(x)[-1]` | verified source interface; not an `out['f7']` key |
-| Stage2 raw RGB scale | `SCALE_TO_01=False` | verified training config |
-| Historical Stage2 cache generation | earlier OOF cache path `/255.0` observed in separate script | potential discrepancy; requires archive-level traceability |
-| Stage2 v4 final 118 epochs / batch16 | manuscript | contract/weights not independently verified here |
-| Stage3 selected A2 | `V11_VARIANCE_WEIGHT=0` candidate source; original A2 final contract recorded `epochs=13`, `lr=1.5e-4` | contract settings verified, full training-source identity pending |
-| Full reproduction of HR/rPPG/BP/stiffness results | datasets/checkpoints/logs not distributed | not performed |
+| Input preprocessing | authenticated compact extractor / Data_QC_v2 | source supplied; data rerun not done |
+| Split / ten folds | source config SHA matches original Linux split & folds; 540/60, 10 × 486/54 | verified on workstation |
+| Stage 1 | original supplied Conv3D self-supervised source | structure inspected |
+| Stage 2 v4 | original Linux model, losses, config, CV train SHA-256 | source verified |
+| Stage 2 morphology | normalized 1st/2nd differences and lags 1/2/4 | implemented in original v4; synthetic tests |
+| Stage 2 F7 | `forward_late_features(x)[-1]` | source interface checked |
+| Stage 2 RGB scale | `SCALE_TO_01=False` | config verified; separate old cache /255 ambiguity open |
+| Stage 2 final 118 epochs | manuscript; checkpoint hashes/caches incomplete | lineage pending |
+| Stage 3 selected A2 | original 13/13 Python source SHA-256 equal training contract | **source verified** |
+| Final A2 optimization | contract: epochs13, batch8, LR1.5e-4, WD2e-4, variance0, pair0.2 | settings verified |
+| Final trainer separately fingerprinted | SHA-256 exists; no matching file located | outstanding |
+| Full clinical accuracy reproduction | no dataset/checkpoint evaluation in this audit | **not performed** |
 
-Do not re-evaluate independent test subjects to reconcile release source files.
-See `STAGE2_V4_SOURCE_AUDIT.md` and `MISSING_SOURCES_AND_RELEASE_BLOCKERS.md`.
+For Stage2 and Stage3 detailed evidence see `STAGE2_V4_SOURCE_AUDIT.md`
+and `STAGE3_A2_ORIGINAL_SOURCE_AUDIT.md`. Do not rerun the independent test
+set for provenance validation.

@@ -1,33 +1,36 @@
-# Remaining verification items for public release
+# Remaining documentation and publication-release gates
 
-**Resolved at source level**
+## Source-level verification completed
 
-- `Data_QC_v2` and authentic compact HDF5 extraction source, with matching archived
-  extraction hash. Original per-record QC outputs are not redistributed.
-- Original Linux Stage-2 v4 morphology-preserving Python source; exact `model`,
-  `losses`, `config`, `train` hashes match 31 October 2026 workstation audit.
-- Frozen 540-development/60-independent subject split and 10 folds have been
-  verified on the original Linux workstation against Stage3 embedded SHA-256;
-  source partition files are not redistributed in this ZIP.
-- Stage3 A2 final-fit contract confirms 13 epochs, LR 1.5e-4, WD 2e-4,
-  seed 42, variance-weight 0.
+- Original compact HDF5 extraction and Data_QC_v2 sources authenticated;
+  individual per-record clinical output data are not released.
+- Original Stage2 v4 `model_stage2.py`, `losses_stage2.py`, `config_stage2.py`,
+  and `train_stage2_cv.py` match the Linux workstation audit hashes.
+- The original frozen 540-development/60-independent subject split and 10-fold
+  development protocol (486 train/54 validation per fold) were verified on Linux,
+  including the SHA-256 fingerprints referenced by the Stage3 code.
+- **All 13 original Stage3 selected A2 core Python files match the A2
+  final-development training contract exactly.** The only former GitHub
+  discrepancy was three comment lines in `config_stage3.py`, now removed.
+- A2 historical contract records 13 epochs, batch 8, LR `1.5e-4`,
+  weight decay `2e-4`, seed 42, variance regularizer `0.0`, pair weight `0.2`.
 
-**Still require evidence / author decision**
+## Outstanding verification / author decisions
 
-1. Correlate Stage2 10-fold **checkpoint SHA-256** hashes and 118-epoch
-   full-development final checkpoint with the training contracts and Stage3
-   rPPG/F7 caches (including original /255 vs raw-scale audit paths).
-2. Correlate Stage3 selected A2 **original trained source and final-fit
-   checkpoint hashes**, per-fold contracts, and downstream inference scripts
-   against the actual 10-fold and final results. The GitHub Stage3 source is
-   currently a v20-derived A2 candidate, not a hash-matched historical original.
-3. Verify that the original final-development inference and metric-generation
-   scripts are included or clearly document the remaining gaps.
-4. Approve license and contributor rights; scan the entire Git history for
-   sensitive files, private measurements, credentials and recordings.
-5. Pin an actual historical training environment if archived; 31 Oct 2026 Linux
-   versions are a **current workstation snapshot**, not necessarily historical.
+1. Identify the **separate final-development Stage3 training runner** with
+   SHA-256 `f658fe2f8712606108322c709bbf2f04e0e0b01011b06910664de77437435616`;
+   this is **not** the same digest as the CV trainer.
+2. Establish source/checkpoint/cache provenance for Stage2 full-development
+   118-epoch fitting and Stage3 model inputs; resolve any source-specific
+   `/255.0` versus raw-scale ambiguity without changing historical files.
+3. Link the final A2 checkpoint, post-freeze inference and metric-generation
+   scripts/records to the selected results; do not rerun the independent holdout
+   merely to complete source bookkeeping.
+4. Approve an explicit software license and authorship rights, and audit the
+   entire Git history for credentials, personal identifiers, measurements, and
+   accidentally tracked artifacts.
+5. If obtainable, document the **historical** environment from run records;
+   present Python/PyTorch/CUDA versions represent the **current workstation**.
 
-No repeated blind-test evaluation or split regeneration is required for these
-source/provenance checks. The previous v4 README refers to an earlier-phase
-blind-test status and must not override the manuscript's final frozen protocol.
+Source authenticity and passing synthetic unit tests are not an independent
+reproduction of manuscript numerical outcomes.

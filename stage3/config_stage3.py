@@ -80,9 +80,6 @@ LR_MIN = 1e-6
 V11_MAE_WEIGHT = 0.55
 V11_RMSE_WEIGHT = 0.30
 V11_CCC_WEIGHT = 0.15
-# A2 SELECTED CONFIGURATION (manuscript Sections 3.6 and 4.2):
-# Only Stage-3 variance regularization is disabled. The v20 reference stays
-# unmodified in ../stage3_v20_reference/config_stage3.py.
 V11_VARIANCE_WEIGHT = 0.0
 V11_VARIANCE_EPS = 1e-6
 

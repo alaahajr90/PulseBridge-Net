@@ -1,0 +1,40 @@
+{
+  "status": "STAGE3_A2_SOURCE_CONTRACT_VERIFIED",
+  "workstation_audit_date": "2026-10-31",
+  "original_source_archive_sha256": "db11ade32a9a98ea1ada5e9478e9ee24788f6a89b13ab3921665c7c180e460d1",
+  "original_a2_final_development_contract_sha256": "c0506f791ee523315f3f6905bf5fa6e210eebec6538f33028f89466d7e72b2a7",
+  "final_trainer_sha256_in_contract": "f658fe2f8712606108322c709bbf2f04e0e0b01011b06910664de77437435616",
+  "final_trainer_source_located": false,
+  "files_sha256": {
+    "config_stage3.py": "54361a9c33ee1094e3589bd1c7027d2f82c68a3d05dd3854d3792b8a4f4ee967",
+    "data_stage3.py": "b0505a35e70868237ffc50ff87ee2b69cff456bca37e46120105bf66a39215bd",
+    "io_utils.py": "742a12d4a220ea38d85db4f5cfcd639d054b7d5d83730fb081e7aca480d30ca4",
+    "losses_stage3.py": "0c5c8b62e77304c8279633ea7d24260ef47eb5c493dd0aa7736defa69b600f79",
+    "metrics_stage3.py": "228b2d129765f4d1b28c1db4d2dbbe312b21301e90667794f13461b148ac7f72",
+    "model_stage3.py": "64586d0b5eae4c8c44a3cc1c64e273c9bfa49372ca50865e01e67f090d309a10",
+    "model_stage3_v8_base.py": "7acdaf6d4c034499320fa5b3248a94eb833650e1f87d1daf96e007fbbbbb4beb",
+    "paired_loss_v20.py": "7ff6108ce81c6dfe033b7caadea4c402dfafa94db072bdba478c42090422d11d",
+    "paired_sampler_v11.py": "c85b4a10781b5d6a790d9173faff2b0e860e75cde969abe886d8bb922ea978e7",
+    "protocol_stage3.py": "0d89b6803f207503da0402678bc6f6fc988284c76a6d66954a5bce7f7c034db7",
+    "stage2_bridge.py": "2a6497ed4951db4818f3d14b8f6eee5ae13567acd4b8fdaa7e7a6ad589572869",
+    "train_stage3_cv.py": "e8eb77b80f89a032060bc5493fa4b8aeb878bc1d856a0de839c1f4301664f0c6",
+    "training_contract.py": "43ee60d49d9b8c9b729336fa0cd68fc49640479c2eecf0993eef6fccc487bc46"
+  },
+  "verified_file_count": 13,
+  "original_stage3_config_ast_identical_to_previous_candidate": true,
+  "selected_a2": {
+    "seed": 42,
+    "epochs": 13,
+    "batch": 8,
+    "lr": 0.00015,
+    "weight_decay": 0.0002,
+    "variance_weight": 0.0,
+    "pair_weight": 0.2
+  },
+  "protocol_sha256": {
+    "subject_split": "d71d9c9e8ef75ef91f28cbac06b1b01de3325b95ecb3a992fb9ecb5afc7be739",
+    "development_10folds": "628057141b979eb3af60595505a995b18d57e7dc4fd45e46d5d490ecb9f6c3e4"
+  },
+  "full_development_stage2_checkpoint_sha256_recorded_in_contract": "42df926754a34c664ac6fcd1ff9e5281646309277bb203eab06187f1c96e87f2",
+  "notice": "No dataset, participant IDs, checkpoint, model weights or individual records included. Source-contract hash match does not establish full end-to-end reproduction."
+}

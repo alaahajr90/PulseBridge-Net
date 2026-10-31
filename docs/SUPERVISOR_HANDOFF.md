@@ -1,33 +1,38 @@
-# PulseBridge-Net — supervisor source handoff (31 October 2026)
+# PulseBridge-Net — verified source handoff for supervisor review
 
-## Source provenance
+**Source state as of 31 Oct 2026**
 
-- Original Linux `Data_QC_v2`/compact HDF5 extraction source integrated.
-- Stage1 original author-supplied encoder source integrated.
-- **Stage2 now uses genuine original v4 MorphologyPreserving source**, not the
-  previously derived v3-to-v4 candidate. SHA-256 hashes for model/loss/config/
-  trainer all match the Linux training-machine audit. A minor `inspect_stage2.py`
-  manifest discrepancy is documented rather than concealed.
-- Stage3 public-source candidate still derives from v20 with A2 variance loss
-  disabled; the original Linux A2 final training contract confirms 13 epochs,
-  LR 1.5e-4, weight decay 2e-4, variance=0.
-- Frozen Stage1 split and folds match Stage3 expected cryptographic hashes:
-  540 development, 60 independent, 10 folds x 486 train/54 val, no overlap.
-- Source + model data-free GitHub Actions smoke tests have passed for the older
-  candidate; the new authentic-v4 patch must pass a new GitHub run after commit.
+- Original Linux video preprocessing / Data_QC_v2 integrated.
+- Stage 1 original author-supplied Conv3D source retained.
+- Authentic Linux Stage 2 v4 morphology-preserving model, losses,
+  configuration and CV trainer verified by SHA-256; original stage source is
+  published in `stage2/`, not a reimplementation from v3.
+- **Stage 3 selected A2: 13/13 core source files match the original final-fit
+  A2 training contract by SHA-256.** The only previous difference was three
+  explanatory comment lines in `stage3/config_stage3.py`. The authenticated
+  original configuration is now restored byte-for-byte.
+- Frozen original participant protocol hashes match recorded source hashes:
+  540 development, 60 fixed independent, 10 disjoint development folds
+  (486/54), zero development/test overlap.
+- Historical A2 final-fit contract: seed42, epochs13, batch8, LR1.5e-4,
+  WD2e-4, `variance_weight=0`, `pair_weight=0.2`.
+- GitHub Actions synthetic PyTorch unit tests passed on previous release;
+  run fresh CI on this commit before claiming the latest commit passed.
 
-## Remaining publication gates
+**Open scientific artifact provenance**
 
-1. Match historical Stage2 fold/final checkpoint SHA-256 and F7/rPPG caches,
-   especially `/255` raw-pixel audit discrepancy.
-2. Match Stage3 historical A2 training source/checkpoints and frozen end-to-end
-   inference path to the selected-config experiment records.
-3. Authorize license, review all Git-tracked files and Git history for data and
-   credentials, and confirm rights clearance.
-4. Record original historical training environment, if available, separately
-   from the current workstation snapshot.
+1. The distinct **final-training runner** SHA-256
+   `f658fe2f8712606108322c709bbf2f04e0e0b01011b06910664de77437435616`
+   is present in the contract but its source was **not located** in the
+   searched experiment project. `train_stage3_cv.py` is the CV trainer, not
+   proven to be the original final runner.
+2. Match frozen full-development Stage2 checkpoint and Stage3 input caches,
+   verify source-to-checkpoint-to-metrics traceability including historical
+   raw-pixel scaling in all relevant pathways.
+3. Complete license/rights approval, scan tracked files and **all Git history**
+   for confidential data, and optionally locate historical environment locks.
 
-Until fully checked, describe this repository as *authenticated source code
-under final provenance verification*, not an independently reproduced result.
-There is no need to retrain or re-evaluate the independent holdout to close
-source-level documentation gaps.
+**Appropriate external description:** authenticated Stage2-v4 and Stage3-A2
+source under final experimental lineage verification. Not yet independently
+reproduced published metrics or fully portable turnkey training. No training,
+additional blind test or model retuning is needed solely for this documentation.
