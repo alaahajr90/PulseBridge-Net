@@ -1,0 +1,27 @@
+{
+  "source_archive": "code Stage_2_rPPG_FineTuning_v4_MorphologyPreserving(1).zip",
+  "source_origin": "Linux training workstation, separate from GitHub MacBook",
+  "original_py_sha256": {
+    "metrics_stage2.py": "a8b724cdad406782c164c5926bb0f6fc32556c130006a6513441eb5edee6c02c",
+    "protocol_stage2.py": "6cd8c25c290d49f49349076809da6396e4d02a0f8b7cad29cdf3b76f474d4748",
+    "config_stage2.py": "f74ee2f733cf056cf8bbf1754cc2eaaf003881aa968d303043f2dfb05bbd8160",
+    "diagnostics_stage2.py": "28d6426b853b9a6a67c8f30ec8a94423706583f21039bae9482fe4de44724c34",
+    "io_utils.py": "94fc7abf6c5322381eb3463b7abaca733ee0884162fbb640273515992ee87399",
+    "losses_stage2.py": "74606bbbb98f30c9c0cf4ec8cde73a3699269962d7825ecbb6a3472fbd9cb27f",
+    "inspect_stage2.py": "8ba6ad17e9e67908a5aa969b2ce8ad3d0fac781ef846a56e0de3c731636b65fb",
+    "data_stage2.py": "4b0231ea664e2e731307d7afcff1239d5bc548ee2bab9eca506d54d346f10247",
+    "runtime_stage2.py": "2b486913df7dabae5917b191a0f6aa0534cc742fa5e5f7023c2450fb71c1cf72",
+    "compare_stage2_v3_v4.py": "0153fa0ab703424eceff6d5408548997011d708b69046b1f5775300d1da37a1e",
+    "model_stage2.py": "a86f2a144785ee44f6d81161e5f041109d7c1430860603592671a9d5e33bdd94",
+    "training_contract.py": "ce4056d9bd117a4002f02f05780de8f7e5a660108260a90dce3aa5f27f081f2f",
+    "train_stage2_cv.py": "8dfbc6ac0eb2584d758538251445b06e68e570ab46dab85a447076eabfa8360a"
+  },
+  "four_key_sha256_match_linux_machine_audit": true,
+  "historical_checkpoint_provenance_verified": false,
+  "package_manifest_integrity_exception": {
+    "file": "inspect_stage2.py",
+    "manifest_claimed_sha256": "77433c8e03177f51d030e9a8f4c5e920cd7fe96a24e4351641393d9e5fafcf16",
+    "actual_source_sha256": "8ba6ad17e9e67908a5aa969b2ce8ad3d0fac781ef846a56e0de3c731636b65fb"
+  },
+  "original_source_files_modified": false
+}

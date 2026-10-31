@@ -24,7 +24,7 @@ from training_contract import CONTRACT_JSON, build_training_contract
 
 
 def parse_args():
-    p = argparse.ArgumentParser("PulseBridge-Net Stage 2 paper-aligned derived v4")
+    p = argparse.ArgumentParser("PulseBridge-Net Stage 2 v4 MorphologyPreserving")
     p.add_argument("--fold", type=int, choices=range(1, K_FOLDS + 1), default=None)
     p.add_argument("--skip-final", action="store_true")
     p.add_argument("--resume", action="store_true")
@@ -48,8 +48,8 @@ def worker_init_fn(worker_id):
 
 def setup_logger():
     d = OUTPUT_ROOT / "logs"; d.mkdir(parents=True, exist_ok=True)
-    path = d / f"stage2_v4_candidate_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
-    log = logging.getLogger("stage2_v4_candidate"); log.setLevel(logging.INFO); log.handlers.clear()
+    path = d / f"stage2_v4_morph_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
+    log = logging.getLogger("stage2_v4_morph"); log.setLevel(logging.INFO); log.handlers.clear()
     fmt = logging.Formatter("%(asctime)s | %(levelname)s | %(message)s")
     for h in (logging.StreamHandler(sys.stdout), logging.FileHandler(path, encoding="utf-8")):
         h.setFormatter(fmt); log.addHandler(h)
@@ -108,7 +108,7 @@ def run_epoch(model, loader, criterion, optimizer, device, training, collect_exa
             loss, parts = criterion(out, y, fps)
 
             if not torch.isfinite(loss):
-                raise RuntimeError(f"Non-finite Stage-2 v4_candidate loss: {loss}")
+                raise RuntimeError(f"Non-finite Stage-2 v4-MORPH loss: {loss}")
 
             if training:
                 loss.backward()
@@ -128,10 +128,12 @@ def run_epoch(model, loader, criterion, optimizer, device, training, collect_exa
                 "spectrum_loss": parts["spectrum_per_sample"].detach().cpu().numpy(),
                 "band_loss": parts["band_per_sample"].detach().cpu().numpy(),
                 "std_loss": parts["std_loss_per_sample"].detach().cpu().numpy(),
-                "morph_first_loss": parts["morph_first_per_sample"].detach().cpu().numpy(),
-                "morph_second_loss": parts["morph_second_per_sample"].detach().cpu().numpy(),
-                "morph_multiscale_loss": parts["morph_multiscale_per_sample"].detach().cpu().numpy(),
                 "aux_mean": parts["aux_mean_per_sample"].detach().cpu().numpy(),
+                "baseline_final_loss": parts["baseline_final_per_sample"].detach().cpu().numpy(),
+                "morphology_loss": parts["morphology_per_sample"].detach().cpu().numpy(),
+                "morph_d1_loss": parts["morph_d1_per_sample"].detach().cpu().numpy(),
+                "morph_d2_loss": parts["morph_d2_per_sample"].detach().cpu().numpy(),
+                "morph_multiscale_loss": parts["morph_multiscale_per_sample"].detach().cpu().numpy(),
                 **wf,
                 "spectral_corr": spec,
             }
@@ -168,7 +170,7 @@ def current_contract():
 
 def save_checkpoint(path, model, optimizer, scheduler, epoch, row, fold, stage1_init, best, stale):
     atomic_torch_save({
-        "stage": "stage2_final_v4_candidate_rppg_waveform_only",
+        "stage": "stage2_v4_morphology_preserving_rppg_waveform_only",
         "fold": fold,
         "epoch": int(epoch),
         "model": model.state_dict(),
@@ -179,7 +181,7 @@ def save_checkpoint(path, model, optimizer, scheduler, epoch, row, fold, stage1_
         "patience_counter": int(stale),
         "stage1_init": str(stage1_init),
         "stage1_init_sha256": sha256_file(stage1_init),
-        "outputs": ["normalized_rppg_waveform", "late_temporal_F7"],
+        "outputs": ["normalized_rppg_waveform"],
         "attention_modules": False,
         "blind_test_evaluated": False,
         "training_contract": current_contract(),
@@ -188,7 +190,7 @@ def save_checkpoint(path, model, optimizer, scheduler, epoch, row, fold, stage1_
 
 def verify_checkpoint_contract(payload):
     if payload.get("training_contract") != current_contract():
-        raise RuntimeError("Unsafe resume blocked: Stage-2 v4_candidate training contract mismatch.")
+        raise RuntimeError("Unsafe resume blocked: Stage-2 v4-MORPH training contract mismatch.")
 
 
 def load_history(path):
@@ -225,14 +227,14 @@ def train_one_fold(fold_info, all_recordings, batch_size, device, log, resume):
     if done_path.exists():
         done = load_json(done_path)
         if not resume or done.get("training_contract") != current_contract():
-            raise RuntimeError(f"Existing Fold {fold} is incompatible with Stage-2 FINAL v4_candidate.")
-        log.info("Stage-2 v4_candidate Fold %02d already complete; reusing.", fold)
+            raise RuntimeError(f"Existing Fold {fold} is incompatible with Stage-2 v4 MorphologyPreserving.")
+        log.info("Stage-2 v4-MORPH Fold %02d already complete; reusing.", fold)
         return done["fold_summary"]
 
     train_refs = recordings_for_subjects(all_recordings, fold_info["train_subjects"])
     val_loader, val_selected = make_val_loader(all_recordings, fold_info["val_subjects"], batch_size)
     if {r.subject_id for r in train_refs} & {r.subject_id for r in val_selected}:
-        raise RuntimeError(f"Leakage in Stage-2 v4_candidate fold {fold}")
+        raise RuntimeError(f"Leakage in Stage-2 v4-MORPH fold {fold}")
 
     init = STAGE1_FOLDS_ROOT / f"fold_{fold:02d}/checkpoints/encoder_best.pth"
     model = Stage2RPPGModel(load_stage1_encoder_weights(init)).to(device)
@@ -249,12 +251,12 @@ def train_one_fold(fold_info, all_recordings, batch_size, device, log, resume):
 
     log.info("="*108)
     log.info(
-        "STAGE-2 FINAL v4_candidate FOLD %02d/%02d | train subjects=%d | val=%d | train recs=%d | val fixed=%d | batch=%d",
+        "STAGE-2 v4 MORPHOLOGY-PRESERVING FOLD %02d/%02d | train subjects=%d | val=%d | train recs=%d | val fixed=%d | batch=%d",
         fold, K_FOLDS, len(fold_info["train_subjects"]), len(fold_info["val_subjects"]),
         len(train_refs), len(val_selected), batch_size
     )
     log.info("Stage-1 fold init: %s | SHA=%s", init, sha256_file(init))
-    log.info("Early Conv4_candidated LR=%g | late Conv4_candidated LR=%g | decoder LR=%g",
+    log.info("Early Conv3d LR=%g | late Conv3d LR=%g | decoder LR=%g",
              LR_ENCODER_EARLY, LR_ENCODER_LATE, LR_DECODER)
     log.info("Temporal decoder dilations=%s | composite anti-collapse loss active", DECODER_DILATIONS)
 
@@ -269,7 +271,7 @@ def train_one_fold(fold_info, all_recordings, batch_size, device, log, resume):
         best = payload.get("best_so_far")
         stale = int(payload.get("patience_counter", 0))
         history = load_history(hist_path)
-        log.info("Resuming compatible Stage-2 v4_candidate fold from epoch %d | patience=%d", start, stale)
+        log.info("Resuming compatible Stage-2 v4-MORPH fold from epoch %d | patience=%d", start, stale)
 
     for epoch in range(start, EPOCHS + 1):
         train_sampler.set_epoch(epoch)
@@ -286,9 +288,10 @@ def train_one_fold(fold_info, all_recordings, batch_size, device, log, resume):
 
         lrs = [g["lr"] for g in optimizer.param_groups]
         log.info(
-            "Fold %02d | Epoch %03d/%03d | loss %.4f/%.4f | r %.4f | specR %.4f | "
-            "RMSE %.4f | predStd %.3f | stdRatio %.3f | bestLagR %.4f | lag %.3fs | LR=%s",
+            "Fold %02d | Epoch %03d/%03d | loss %.4f/%.4f | morph %.4f | d1shape %.4f | d2shape %.4f | "
+            "r %.4f | specR %.4f | RMSE %.4f | predStd %.3f | stdRatio %.3f | bestLagR %.4f | lag %.3fs | LR=%s",
             fold, epoch, EPOCHS, row["train_total_loss"], row["val_total_loss"],
+            row["val_morphology_loss"], row["val_morph_d1_loss"], row["val_morph_d2_loss"],
             row["val_pearson_r"], row["val_spectral_corr"], row["val_rmse"],
             row["val_pred_std"], row["val_std_ratio"], row["val_best_lag_r"],
             row["val_best_lag_seconds"], ",".join(f"{x:.1e}" for x in lrs)
@@ -300,19 +303,19 @@ def train_one_fold(fold_info, all_recordings, batch_size, device, log, resume):
             save_checkpoint(ck/"best.pt", model, optimizer, scheduler, epoch, row, fold, init, best, stale)
             atomic_torch_save(model.state_dict(), ck/"stage2_rppg_best.pth")
             save_json(directory/"best_group_diagnostics.json", groups)
-            save_waveform_examples(examples, plots/"best_waveforms.png", f"Stage 2 paper-aligned derived v4 Fold {fold:02d}")
-            log.info("  -> NEW BEST v4_candidate fold %02d at epoch %d | r=%.4f stdRatio=%.3f",
+            save_waveform_examples(examples, plots/"best_waveforms.png", f"Stage 2 v4 MorphologyPreserving Fold {fold:02d}")
+            log.info("  -> NEW BEST v4-MORPH fold %02d at epoch %d | r=%.4f stdRatio=%.3f",
                      fold, epoch, row["val_pearson_r"], row["val_std_ratio"])
         else:
             stale += 1
 
         save_checkpoint(ck/"last.pt", model, optimizer, scheduler, epoch, row, fold, init, best, stale)
         if SAVE_PLOTS_EVERY_EPOCH:
-            save_loss_plot(history, plots/"loss_curves.png", f"Stage 2 paper-aligned derived v4 Fold {fold:02d}")
-            save_metric_plot(history, plots/"waveform_metrics.png", f"Stage 2 paper-aligned derived v4 Fold {fold:02d}")
+            save_loss_plot(history, plots/"loss_curves.png", f"Stage 2 v4 MorphologyPreserving Fold {fold:02d}")
+            save_metric_plot(history, plots/"waveform_metrics.png", f"Stage 2 v4 MorphologyPreserving Fold {fold:02d}")
 
         if stale >= PATIENCE:
-            log.info("Early stopping v4_candidate fold %02d at epoch %d | best=%d val=%.4f r=%.4f",
+            log.info("Early stopping v4-MORPH fold %02d at epoch %d | best=%d val=%.4f r=%.4f",
                      fold, epoch, int(best["epoch"]), best["val_total_loss"], best["val_pearson_r"])
             break
 
@@ -325,6 +328,10 @@ def train_one_fold(fold_info, all_recordings, batch_size, device, log, resume):
         "best_val_spectral_corr": float(best["val_spectral_corr"]),
         "best_val_pred_std": float(best["val_pred_std"]),
         "best_val_std_ratio": float(best["val_std_ratio"]),
+        "best_val_morphology_loss": float(best["val_morphology_loss"]),
+        "best_val_morph_d1_loss": float(best["val_morph_d1_loss"]),
+        "best_val_morph_d2_loss": float(best["val_morph_d2_loss"]),
+        "best_val_morph_multiscale_loss": float(best["val_morph_multiscale_loss"]),
         "best_val_best_lag_r": float(best["val_best_lag_r"]),
         "best_val_best_lag_seconds": float(best["val_best_lag_seconds"]),
         "stage1_init": str(init),
@@ -345,13 +352,13 @@ def final_fit(all_recordings, protocol, best_epochs, batch_size, device, log, re
     if done_path.exists():
         done = load_json(done_path)
         if done.get("training_contract") != current_contract():
-            raise RuntimeError("Final v4_candidate result contract mismatch.")
+            raise RuntimeError("Final v3 result contract mismatch.")
         return done["final_summary"]
 
     dev_refs = recordings_for_subjects(all_recordings, protocol["development_subjects"])
     blind = set(map(str, protocol["blind_test_subjects"]))
     if any(r.subject_id in blind for r in dev_refs):
-        raise RuntimeError("Blind subject entered final Stage-2 v4_candidate fit.")
+        raise RuntimeError("Blind subject entered final Stage-2 v4-MORPH fit.")
 
     model = Stage2RPPGModel(load_stage1_encoder_weights(STAGE1_FINAL_ENCODER)).to(device)
     optimizer = make_optimizer(model)
@@ -364,10 +371,10 @@ def final_fit(all_recordings, protocol, best_epochs, batch_size, device, log, re
         verify_checkpoint_contract(payload)
         model.load_state_dict(payload["model"]); optimizer.load_state_dict(payload["optimizer"])
         start = int(payload["epoch"]) + 1; history = load_history(hist_path)
-        log.info("Resuming FINAL Stage-2 v4_candidate from epoch %d", start)
+        log.info("Resuming FINAL Stage-2 v4 MorphologyPreserving from epoch %d", start)
 
     log.info("="*108)
-    log.info("FINAL Stage-2 v4_candidate DEVELOPMENT | subjects=540 | recs=%d | epochs=%d | blind LOCKED",
+    log.info("FINAL Stage-2 v4 MorphologyPreserving DEVELOPMENT | subjects=540 | recs=%d | epochs=%d | blind LOCKED",
              len(dev_refs), epochs)
 
     for epoch in range(start, epochs+1):
@@ -375,7 +382,7 @@ def final_fit(all_recordings, protocol, best_epochs, batch_size, device, log, re
         tr, _, _ = run_epoch(model, loader, criterion, optimizer, device, True, False)
         row = {"epoch": epoch, **{f"train_{k}": v for k,v in tr.items()}}
         history.append(row); write_rows_csv(hist_path, history)
-        log.info("FINAL v4_candidate | %03d/%03d | loss=%.4f r=%.4f RMSE=%.4f stdRatio=%.3f",
+        log.info("FINAL v4-MORPH | %03d/%03d | loss=%.4f r=%.4f RMSE=%.4f stdRatio=%.3f",
                  epoch, epochs, row["train_total_loss"], row["train_pearson_r"],
                  row["train_rmse"], row["train_std_ratio"])
         save_checkpoint(ck/"last.pt", model, optimizer, None, epoch,
@@ -384,12 +391,12 @@ def final_fit(all_recordings, protocol, best_epochs, batch_size, device, log, re
 
     official = directory/"stage2_rppg_for_stage3.pt"
     atomic_torch_save({
-        "stage": "stage2_final_v4_candidate_development_rppg_only",
+        "stage": "stage2_v4_morphology_preserving_development_rppg_only",
         "epoch": epochs,
         "model": model.state_dict(),
         "stage1_init": str(STAGE1_FINAL_ENCODER),
         "stage1_init_sha256": sha256_file(STAGE1_FINAL_ENCODER),
-        "outputs": ["normalized_rppg_waveform", "late_temporal_F7"],
+        "outputs": ["normalized_rppg_waveform"],
         "target_training_source": "authoritative GOOD ppg_sync only",
         "blind_test_evaluated": False,
         "training_contract": current_contract(),
@@ -427,11 +434,12 @@ def main():
     batch = int(runtime["batch_size"])
     contract = build_training_contract(runtime)
 
-    log.info("PulseBridge-Net Stage 2 paper-aligned derived v4 — PHYSIOLOGICAL rPPG WAVEFORM")
+    log.info("PulseBridge-Net Stage 2 v4 MorphologyPreserving — PHYSIOLOGICAL rPPG WAVEFORM")
     log.info("Device=%s | READY=%d HOLD=%d | batch=%d | epochs=%d", device, len(recs), len(hold), batch, EPOCHS)
-    log.info("Composite loss: corr=%g wave=%g deriv=%g spectrum=%g band=%g std=%g morph1=%g morph2=%g morph_ms=%g aux=%g",
-             W_CORR, W_WAVE, W_DERIVATIVE, W_SPECTRUM, W_BAND, W_STD,
-             W_MORPH_FIRST, W_MORPH_SECOND, W_MORPH_MULTISCALE, AUX_WEIGHT)
+    log.info("Original v3 loss preserved: corr=%g wave=%g deriv=%g spectrum=%g band=%g std=%g aux=%g",
+             W_CORR, W_WAVE, W_DERIVATIVE, W_SPECTRUM, W_BAND, W_STD, AUX_WEIGHT)
+    log.info("ONLY v4 additions: morph_d1=%g morph_d2=%g multiscale=%g lags=%s",
+             W_MORPH_D1, W_MORPH_D2, W_MORPH_MULTISCALE, MORPH_MULTISCALE_LAGS)
     log.info("Blind test LOCKED. No attention / HR / HRV / RR.")
 
     targets = folds["folds"] if args.fold is None else [f for f in folds["folds"] if int(f["fold"]) == args.fold]
@@ -453,12 +461,16 @@ def main():
         "val_pearson_r_std": float(np.std([s["best_val_pearson_r"] for s in summaries], ddof=1)),
         "val_spectral_corr_mean": float(np.mean([s["best_val_spectral_corr"] for s in summaries])),
         "val_std_ratio_mean": float(np.mean([s["best_val_std_ratio"] for s in summaries])),
+        "val_morphology_loss_mean": float(np.mean([s["best_val_morphology_loss"] for s in summaries])),
+        "val_morph_d1_loss_mean": float(np.mean([s["best_val_morph_d1_loss"] for s in summaries])),
+        "val_morph_d2_loss_mean": float(np.mean([s["best_val_morph_d2_loss"] for s in summaries])),
+        "val_morph_multiscale_loss_mean": float(np.mean([s["best_val_morph_multiscale_loss"] for s in summaries])),
         "val_best_lag_r_mean": float(np.mean([s["best_val_best_lag_r"] for s in summaries])),
         "blind_test_used": False,
         "training_contract": contract,
     }
     save_json(OUTPUT_ROOT/"cross_validation/cv_aggregate.json", aggregate)
-    log.info("10-FOLD v4_candidate COMPLETE | r=%.4f±%.4f RMSE=%.4f±%.4f specR=%.4f stdRatio=%.3f bestLagR=%.4f",
+    log.info("10-FOLD v4-MORPH COMPLETE | r=%.4f±%.4f RMSE=%.4f±%.4f specR=%.4f stdRatio=%.3f bestLagR=%.4f",
              aggregate["val_pearson_r_mean"], aggregate["val_pearson_r_std"],
              aggregate["val_rmse_mean"], aggregate["val_rmse_std"],
              aggregate["val_spectral_corr_mean"], aggregate["val_std_ratio_mean"],

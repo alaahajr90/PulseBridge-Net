@@ -24,7 +24,7 @@ def _load_stage1_encoder_class():
     if not path.exists():
         raise FileNotFoundError(f"Stage-1 model source missing: {path}")
     spec = importlib.util.spec_from_file_location(
-        "pulsebridge_stage1_model_for_stage2_paper_aligned", path
+        "pulsebridge_stage1_model_for_stage2_v3", path
     )
     if spec is None or spec.loader is None:
         raise ImportError(f"Cannot load Stage-1 model: {path}")
@@ -75,7 +75,7 @@ class TemporalResidualBlock(nn.Module):
 class TemporalRPPGDecoder(nn.Module):
     """
     Attention-free residual TCN. Receptive field spans multiple pulse samples,
-    matching the attention-free Stage-2 decoder described in the manuscript.
+    unlike the v2 1x1 projection that encouraged a near-zero solution.
     """
     def __init__(self, in_channels=64):
         super().__init__()
@@ -191,7 +191,7 @@ class Stage2RPPGModel(nn.Module):
             for head, feat in zip(self.aux_heads, (f4, f5, f6))
         ]
         final = self.decoder(f7)
-        return {"aux_rppg": aux, "rppg": final, "all_rppg": aux + [final], "f7": f7}
+        return {"aux_rppg": aux, "rppg": final, "all_rppg": aux + [final]}
 
     def parameter_groups(self):
         by_name = dict(self.encoder.named_parameters())

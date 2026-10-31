@@ -1,11 +1,16 @@
-# Canonical selection vs manuscript
+# Canonical source selection and manuscript correspondence
 
-**Preprocessing**: manuscript-authoritative Data_QC_v2 — missing. Never use the legacy NPZ extractor as a silent drop-in.
+- `preprocessing/`: original compact HDF5 extractor and Data_QC_v2 source (source-level verified).
+- `stage1/`: supplied SSL Conv3D encoder source.
+- `stage2/`: **authenticated original Stage-2 v4 MorphologyPreserving source from
+  the Linux training workstation**. Principal four hashes matched the workstation
+  audit. The previous v3-derived manuscript-aligned candidate is no longer active.
+- `stage3/`: v20-derived A2 candidate with `V11_VARIANCE_WEIGHT=0`; selected
+  final-development training-contract properties have been verified from an
+  original Linux audit, but complete source/weight/run identity remains to be checked.
 
-**Stage 1**: selected supplied Stage-1 final SSL source. Conv3D seven-layer temporal encoder, margin adjusted contrastive objective and temporal regularization; original source preserved verbatim.
+Frozen subject protocol: 540 development / 60 independent, ten disjoint folds
+(486/54). Original Stage1 protocol SHA-256 hashes matched the Stage3 source
+configuration on the Linux machine. Do not export raw subject IDs by default.
 
-**Stage 2**: active source is a clearly identified *derived candidate*, constructed from supplied v3 source by implementing morphology penalties Lm1/Lm2/Lms (Eqs. 11–17). It is NOT certified as the original historical v4 source or model that generated the manuscript results.
-
-**Stage 3**: candidate A2 selected source = original v20 files with `V11_VARIANCE_WEIGHT: 0.05 → 0.0`. The reference v20 and historical training logs must be used to verify provenance before asserting reproduction.
-
-Original 60-person holdout was evaluated once as stated in the manuscript, and this packaging did not run evaluation or inspect participant data.
+Published numerical metrics have **not** been reproduced by these data-free tests.

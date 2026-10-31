@@ -8,7 +8,7 @@ This package intentionally displays **one canonical top-level folder per study s
 |---|---|---|
 | `preprocessing/` | original Data_QC_v2 + SHA-verified compact HDF5 extractor | **SOURCE PRESENT:** historical data rerun and split-file verification pending |
 | `stage1/` | supplied seven-Conv3D contrastive encoder | structurally aligned; training not repeated |
-| `stage2/` | manuscript-aligned *derived* candidate from supplied v3 | **PRESENT:** equations/architecture mapped to paper; historical v4 checkpoint identity not verified |
+| `stage2/` | **original Linux v4 MorphologyPreserving source** (verified SHA-256) | source identity verified; historical trained checkpoint identity still under audit |
 | `stage3/` | supplied v20 with A2 variance coefficient set to 0 | code-level candidate; historical A2 run configs not verified |
 
 There are **not** multiple active stage versions in this folder layout. Some filenames under `stage3/` contain historical version suffixes because the *selected* source imports/reuses those helper modules; they have not been deleted or misleadingly renamed.
@@ -17,7 +17,7 @@ There are **not** multiple active stage versions in this folder layout. Some fil
 
 - 600 participants: fixed 60-subject independent cohort and 540 development subjects, with 10 matched subject-wise folds. Do not recreate test participants.
 - Stage-1 input: `[B, 3, 128, 64, 64]` in extracted pixel scale, temporal encoder output `[B, 128, 64]`.
-- Stage-2 morphology-preserving derived candidate: no Transformer; dilated Conv1D decoder with morphology-preserving terms Lm1, Lm2, Lms, plus reference waveform losses.
+- Stage-2 original morphology-preserving v4: no Transformer; dilated Conv1D decoder with morphology-preserving terms Lm1, Lm2, Lms, plus reference waveform losses.
 - Stage-3 selected A2: `V11_VARIANCE_WEIGHT=0.0` (this does **not** remove the waveform std loss from Stage 2). Matched-state D03 correction is conditional on paired segments.
 - Full-development final fitting described in manuscript: Stage 2 for 118 epochs and Stage 3 for 13 epochs, with frozen checkpoints before independent evaluation; exact scripts/records are not supplied.
 

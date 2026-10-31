@@ -1,47 +1,33 @@
-# PulseBridge-Net: supervisor code handoff (31 October 2026)
+# PulseBridge-Net — supervisor source handoff (31 October 2026)
 
-## Current code-release state
+## Source provenance
 
-This staging repository provides a **manuscript-aligned candidate** for the
-PulseBridge-Net research pipeline. The code is suitable for **supervisor review**
-with explicit scientific caveats; **it is not yet a verified reproduction** of
-the published/development metrics. GitHub should remain **Private** until the
-issues listed below are resolved, or be explicitly labelled a partial research
-preview if the authors decide to disclose it before that point.
+- Original Linux `Data_QC_v2`/compact HDF5 extraction source integrated.
+- Stage1 original author-supplied encoder source integrated.
+- **Stage2 now uses genuine original v4 MorphologyPreserving source**, not the
+  previously derived v3-to-v4 candidate. SHA-256 hashes for model/loss/config/
+  trainer all match the Linux training-machine audit. A minor `inspect_stage2.py`
+  manifest discrepancy is documented rather than concealed.
+- Stage3 public-source candidate still derives from v20 with A2 variance loss
+  disabled; the original Linux A2 final training contract confirms 13 epochs,
+  LR 1.5e-4, weight decay 2e-4, variance=0.
+- Frozen Stage1 split and folds match Stage3 expected cryptographic hashes:
+  540 development, 60 independent, 10 folds x 486 train/54 val, no overlap.
+- Source + model data-free GitHub Actions smoke tests have passed for the older
+  candidate; the new authentic-v4 patch must pass a new GitHub run after commit.
 
-## Included and verified to source level
+## Remaining publication gates
 
-- Preprocessing: canonical compact HDF5 extractor from the archived source,
-  identified by SHA-256, plus supplied Data_QC_v2 scripts. Aggregate QC
-  evidence is documented; per-person measurement files are omitted.
-- Stage 1: original author-supplied self-supervised Conv3D source; Python
-  source tests do not establish training reproducibility.
-- Stage 2: an **adapted candidate**, starting from the supplied v3 files,
-  with morphology terms added to match the manuscript's equations; no claim
-  of byte-for-byte identity with the original historical v4 trainer.
-- Stage 3: v20-derived A2 candidate with variance coefficient set to zero;
-  full training-contract/checkpoint identity not yet corroborated.
-- Example environment specification, source audits, and offline tests.
+1. Match historical Stage2 fold/final checkpoint SHA-256 and F7/rPPG caches,
+   especially `/255` raw-pixel audit discrepancy.
+2. Match Stage3 historical A2 training source/checkpoints and frozen end-to-end
+   inference path to the selected-config experiment records.
+3. Authorize license, review all Git-tracked files and Git history for data and
+   credentials, and confirm rights clearance.
+4. Record original historical training environment, if available, separately
+   from the current workstation snapshot.
 
-## Evidence still needed to make a full code-availability claim
-
-1. Verify original fixed 540-development / 60-independent subject assignments,
-   and all ten inherited fold manifests, without regenerating the split.
-2. Corroborate frozen Stage 2 **v4** checkpoint hashes and historical source
-   or training contracts used to produce Stage 3's rPPG/F7 caches.
-3. Corroborate the **A2** training/final-fitting runtime contracts and the
-   subject-state aggregation/inference scripts behind the manuscript results.
-4. Test the full pipeline on authorized non-blind development data, without
-   repeating the one-time independent evaluation.
-5. Approve rights, license, sensitive-data exclusion, full Git history, and
-   example environment provenance before publishing.
-
-## Manuscript wording while repository remains private
-
-> The implementation and experimental configurations are maintained by the
-> authors. A manuscript-aligned source-code candidate has been prepared for
-> internal review; validation of complete reproducibility and code-release
-> provenance is ongoing. The source repository is not yet publicly accessible.
-
-Do not call the candidate a publicly available full reproduction until those
-claims are supported by the actual released contents and evidence.
+Until fully checked, describe this repository as *authenticated source code
+under final provenance verification*, not an independently reproduced result.
+There is no need to retrain or re-evaluate the independent holdout to close
+source-level documentation gaps.

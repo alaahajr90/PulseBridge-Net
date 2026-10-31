@@ -1,45 +1,44 @@
-# Stage 2 — morphology-preserving manuscript-aligned **derived candidate**
+# Stage 2 — authenticated original Linux v4 MorphologyPreserving source
 
-**Source:** `code stage2_new.zip` (`FINAL_v3`), modified only as documented to
-implement the v4 loss terms in manuscript Eqs. (11)–(17), expose F7, and retain
-original architecture and participant-level split protocol.
+**Canonical source:** Author-supplied `Stage_2_rPPG_FineTuning_v4_MorphologyPreserving` archive received 31 October 2026.
+The 13 Python source files in this folder are **byte-identical** to the corresponding
+files supplied from the Linux training workstation. Four principal hashes match the
+workstation's source-audit report. See `../provenance/STAGE2_V4_ORIGINAL_SOURCE_SHA256.json`.
 
-This is **not authenticated historical Stage-2 v4 source**. It must not be
-used to claim reproduction of the paper's reported Stage-2 `r`, Stage-3 BP
-results, or final checkpoints without training/provenance verification.
+The training workstation is Linux (`/home/hajr/...`), *not* the MacBook used for GitHub commits.
+Historical absolute workstation paths in `config_stage2.py` are retained deliberately to preserve
+source identity. They must be configured for another training machine; this repository's GitHub CI
+only performs data-free tests and does not attempt to train.
 
-## Changes from the archived v3 source
+## Manuscript match
 
-- Eq. (11): per-sample population-standard-deviation normalization of temporal derivatives.
-- Eq. (12): `Lm1 = SmoothL1(Z(Δp̂),Z(Δp))`, coefficient 0.15.
-- Eq. (13): `Lm2 = SmoothL1(Z(Δ²p̂),Z(Δ²p))`, coefficient 0.35.
-- Eq. (14): `Lms = mean_{lag∈{1,2,4}} SmoothL1(Z(Δ_lag p̂),Z(Δ_lag p))`, coefficient 0.20.
-- Eq. (15): total waveform loss preserves existing 3.00/0.75/0.50/0.75/0.05/0.25 weights.
-- Eqs. (16)–(17): retains weak auxiliary loss 0.15 × mean(three heads).
-- `Stage2RPPGModel.forward()` additionally exposes `f7: [B,T,64]`, without
-  changing existing keys or checkpoint parameter names.
-- Training contract and validation outputs record the new loss terms.
+- ROI input `[B,3,128,64,64]`, `SCALE_TO_01=False`, Stage-1 Conv3D initialization;
+  encoder Conv3D fine-tuning with frozen BatchNorm, TCN dilations `(1,2,4,8)`;
+  three auxiliary waveform heads.
+- The waveform loss contains Pearson, waveform, derivative, spectral, pulse-band,
+  waveform-standard-deviation terms and the original auxiliary-head term.
+- Authentic v4 adds `normalized_d1_shape_per_sample` (0.15),
+  `normalized_d2_shape_per_sample` (0.35), and `multiscale_shape_per_sample` (0.20,
+  lags 1/2/4), as described in manuscript Eqs. (11–17).
+- Original `Stage2RPPGModel.forward()` yields `rppg`, `aux_rppg` and `all_rppg`.
+  The final 64-dimensional `F7` sequence is obtained via
+  `model.forward_late_features(x)[-1]`, **not** via `forward()['f7']`.
+  Model parameters and tensor shapes are unchanged.
+- `train_stage2_cv.py` implements development 10-fold training. The original
+  `run_stage2_v4_morph.sh` is **historical CV-only** (`--skip-final`). A final
+  development fit is described in the manuscript, but its archived run contract
+  and exact checkpoint provenance have not been independently checked here.
 
-The original v3 source hashes are preserved in `../provenance/STAGE2_V3_SOURCE_SHA256.json`.
+## Historical-source limitations
 
-## Experimental protocol carried from the original code
+- Authenticated source-code identity does not itself prove the SHA-256 of trained
+  Stage-2 v4 fold/final checkpoints or reproduce published metrics.
+- The original `PACKAGE_MANIFEST.json` has an inconsistent hash for
+  `inspect_stage2.py`; this is explicitly recorded in the provenance report.
+- One older v4 README describes a blind-test status from an earlier experiment.
+  It is not used to revise the frozen evaluation protocol in the manuscript.
+- Some code needs original HDF5 data, QC manifests and frozen Stage-1 checkpoints;
+  none are distributed here. This source must not be used to re-tune on the
+  independent 60-subject test cohort.
 
-- `[B,3,128,64,64]` unscaled RGB input (`SCALE_TO_01=False`).
-- All seven Stage-1 Conv3D layers fine-tuned, with early/late LR 1e-5/5e-5;
-  encoder BN frozen, decoder LR 2e-4.
-- Dilations 1,2,4,8; 64-channel attention-free temporal decoder; three auxiliary heads.
-- Batch preflight 16→8→4→2; 10 subject-exclusive development folds;
-  validation-selected checkpoints, max 120 epochs and patience 18.
-- Frozen 60-subject test assignment is not rebuilt or accessed by audit tests.
-
-**Data dependency:** original authoritative HDF5 ROI/PPG clips, Stage-1 frozen
-splits, fold-specific Stage-1 checkpoints and QC manifest with recorded hashes.
-The package does not contain private recordings or checkpoints.
-
-## Tests
-
-From repository root: `python -m unittest discover -s tests -v`.
-
-For actual experiments, first compare this code to the original v4 source, and
-run only on the development cohort using the frozen manifests. Do not launch
-blind-test inference for version matching.
+See `../docs/STAGE2_V4_SOURCE_AUDIT.md` for code-to-paper details.

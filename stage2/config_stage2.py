@@ -1,5 +1,4 @@
 from pathlib import Path
-import os
 
 # =============================================================================
 # IMMUTABLE SCIENTIFIC PROTOCOL
@@ -8,8 +7,8 @@ SEED = 42
 
 PROJECT_ROOT = Path("/home/hajr/mcd_rppg/code_HR_RR_model/PulseBridge_Net")
 STAGE1_DIR = PROJECT_ROOT / "Stage_1_PulseRepresentation"
-STAGE2_DIR = Path(__file__).resolve().parent  # Repository copy: local source and result location
-OUTPUT_ROOT = Path(os.environ.get("STAGE2_OUTPUT_ROOT_OVERRIDE", str(STAGE2_DIR / "results")))
+STAGE2_DIR = PROJECT_ROOT / "Stage_2_rPPG_FineTuning_v4_MorphologyPreserving"
+OUTPUT_ROOT = STAGE2_DIR / "results"
 
 DATA_ROOT = Path("/home/hajr/Desktop/mcd_rppg_clips")
 DB_CSV = Path("/home/hajr/mcd_rppg/db.csv")
@@ -39,13 +38,7 @@ EXPECTED_FROZEN_FOLDS_SHA256 = (
 STAGE1_FOLDS_ROOT = STAGE1_DIR / "results/folds"
 STAGE1_FINAL_ENCODER = STAGE1_DIR / "results/final_model/stage1_encoder_for_stage2.pth"
 STAGE1_BLIND_LOCK = STAGE1_DIR / "results/final_model/blind_test_LOCKED.json"
-# Default to the historical workstation path when available; otherwise load the
-# unchanged Stage-1 source packaged beside this reconstructed Stage-2 code.
-_STAGE1_FALLBACK = STAGE2_DIR.parent / "stage1" / "model_stage1.py"
-STAGE1_MODEL_PY = Path(os.environ.get(
-    "PULSEBRIDGE_STAGE1_MODEL",
-    str((STAGE1_DIR / "model_stage1.py") if (STAGE1_DIR / "model_stage1.py").exists() else _STAGE1_FALLBACK),
-))
+STAGE1_MODEL_PY = STAGE1_DIR / "model_stage1.py"
 
 K_FOLDS = 10
 CLIP_LEN = 128
@@ -53,10 +46,10 @@ ROI_SIZE = 64
 SCALE_TO_01 = False
 
 # =============================================================================
-# STAGE-2 PAPER-ALIGNED v4 CANDIDATE — LEARNING CONFIGURATION
+# STAGE-2 FINAL v3 — LEARNING CONFIGURATION
 # =============================================================================
-# Derived from archived v3 source to implement manuscript Eq. (12)–(17).
-# This is a code reconstruction, NOT an authenticated historical v4 run.
+# v2 showed strong amplitude collapse / underfitting. v3 keeps the protocol
+# frozen but upgrades only the waveform-learning machinery.
 EPOCHS = 120
 PATIENCE = 18
 MIN_DELTA = 1e-4
@@ -78,7 +71,6 @@ SMOOTH_L1_BETA = 1.0
 
 # Physiological waveform objective:
 # final = corr + waveform + derivative + spectrum + band + std
-#       + normalized first/second derivative + multiscale increments
 W_CORR = 3.0
 W_WAVE = 0.75
 W_DERIVATIVE = 0.50
@@ -86,14 +78,7 @@ W_SPECTRUM = 0.75
 W_BAND = 0.05
 W_STD = 0.25
 
-# Morphology preserving additions, manuscript Eq. (12)–(15).
-W_MORPH_FIRST = 0.15
-W_MORPH_SECOND = 0.35
-W_MORPH_MULTISCALE = 0.20
-MORPH_LAGS = (1, 2, 4)
-MORPH_Z_EPS = 1e-6
-
-# Auxiliary heads are intentionally weak in the derived candidate.
+# Auxiliary heads are intentionally weak in v3.
 AUX_WEIGHT = 0.15
 AUX_CORR_WEIGHT = 1.0
 AUX_WAVE_WEIGHT = 0.25
@@ -151,3 +136,30 @@ FINAL_EPOCH_RULE = "median_best_epoch"
 MIN_SEGMENT_PPG_STD = 1e-6
 
 EVALUATE_BLIND_IN_STAGE2 = False
+
+
+# =============================================================================
+# STAGE-2 v4 MORPHOLOGY-PRESERVING CONTROLLED EXTENSION
+# =============================================================================
+# Baseline Stage-2 v3 waveform objective remains fully active and unchanged.
+# These are the ONLY new scientific loss terms in v4.
+#
+# Rationale from the Development-only OOF morphology audit:
+#   median |waveform r|       = 0.8392
+#   representative-beat r    = 0.9759
+#   first-derivative r        = 0.9500
+#   second-derivative r       = 0.6810
+#   morphology feature r      = 0.1688
+#
+# Therefore v4 adds shape-preserving supervision while keeping the architecture,
+# dataset, split, optimizer, LR policy, BatchNorm policy and original v3 losses.
+W_MORPH_D1 = 0.15
+W_MORPH_D2 = 0.35
+W_MORPH_MULTISCALE = 0.20
+MORPH_MULTISCALE_LAGS = (1, 2, 4)
+MORPH_NORM_EPS = 1e-6
+
+# Development experiment only. The already-consumed 60-subject Blind cohort
+# is forbidden for this v4 line of work.
+EVALUATE_BLIND_IN_STAGE2 = False
+MORPHOLOGY_AUDIT_BASELINE_MEDIAN_R = 0.16879113595892714

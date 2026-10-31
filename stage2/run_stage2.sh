@@ -1,11 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
-cd "$(dirname "$0")"
-export PYTHONHASHSEED=42
-export CUBLAS_WORKSPACE_CONFIG=:4096:8
-mkdir -p results/logs results/preflight
-exec 9>results/.stage2_training.lock
-flock -n 9 || { echo "Stage-2 already running"; exit 2; }
-echo "PulseBridge-Net Stage-2: manuscript-aligned SOURCE CANDIDATE, NOT historical verified v4"
-python -u inspect_stage2.py 2>&1 | tee results/logs/preflight_latest.log
-python -u train_stage2_cv.py --resume
+printf '%s\n' 'This repository now ships the *original* Stage 2 v4 Linux source.'
+printf '%s\n' 'Its archived CV runner is stage2/run_stage2_v4_morph.sh (CV-only; --skip-final).'
+printf '%s\n' 'Before running historical training, read stage2/INSTALLATION.md and verify paths/checkpoints/protocol.'
+exit 2

@@ -1,31 +1,33 @@
-# Required original records before claiming full publication reproducibility
+# Remaining verification items for public release
 
-**Priority P0** — exact original `Stage_2_rPPG_FineTuning_v4_MorphologyPreserving/`
-source, training configuration, data reader, final loss with normalized first/second
-and multiscale derivatives, and its frozen CV/final checkpoint fingerprints.
-The supplied file named `code stage2_new.zip` is **v3**, not v4.
+**Resolved at source level**
 
-**Source supplied; integration still pending runtime verification** — `Data_QC_v2` scripts used to create exact HDF5 `roi`, `ppg`,
-`clip_starts`, and the three `04_stage{1,2,3}_manifest.csv` files; provide
-manifest hashes and decision logic including frame-gap handling. The canonical HDF5 extractor is now present and SHA-verified; the legacy per-clip NPZ source is not the active pipeline.
+- `Data_QC_v2` and authentic compact HDF5 extraction source, with matching archived
+  extraction hash. Original per-record QC outputs are not redistributed.
+- Original Linux Stage-2 v4 morphology-preserving Python source; exact `model`,
+  `losses`, `config`, `train` hashes match 31 October 2026 workstation audit.
+- Frozen 540-development/60-independent subject split and 10 folds have been
+  verified on the original Linux workstation against Stage3 embedded SHA-256;
+  source partition files are not redistributed in this ZIP.
+- Stage3 A2 final-fit contract confirms 13 epochs, LR 1.5e-4, WD 2e-4,
+  seed 42, variance-weight 0.
 
-**Priority P0** — frozen `frozen_subject_split.json`,
-`development_10folds.json`, and `protocol_manifest.json` (or a privacy-safe
-reproduction protocol with verified hashes). Do not silently regenerate
-an alternative 60-subject holdout.
+**Still require evidence / author decision**
 
-**Priority P0** — the actual A2/selected Stage-3 config/contract from each of the
-10 folds (variance weight 0), as well as original full-development Stage-2
-118-epoch / Stage-3 13-epoch scripts and the independent inference pipeline.
+1. Correlate Stage2 10-fold **checkpoint SHA-256** hashes and 118-epoch
+   full-development final checkpoint with the training contracts and Stage3
+   rPPG/F7 caches (including original /255 vs raw-scale audit paths).
+2. Correlate Stage3 selected A2 **original trained source and final-fit
+   checkpoint hashes**, per-fold contracts, and downstream inference scripts
+   against the actual 10-fold and final results. The GitHub Stage3 source is
+   currently a v20-derived A2 candidate, not a hash-matched historical original.
+3. Verify that the original final-development inference and metric-generation
+   scripts are included or clearly document the remaining gaps.
+4. Approve license and contributor rights; scan the entire Git history for
+   sensitive files, private measurements, credentials and recordings.
+5. Pin an actual historical training environment if archived; 31 Oct 2026 Linux
+   versions are a **current workstation snapshot**, not necessarily historical.
 
-**Priority P1** — reproducible environment lock, checkpoint hash manifests,
-fold metrics, blinded prediction artifacts and cached Stage2 F7 fingerprints
-when redistribution and privacy policy permit.
-
-**Priority P1** — license and rights clearance before releasing publicly.
-
-All missing materials should be retrieved from completed experiments **without
-rerunning the independent test or changing the paper's evaluation protocol**.
-
-
-Stage2 now has a derived code implementation that matches the paper loss definitions; original v4 historical source and checkpoint identity still need checking.
+No repeated blind-test evaluation or split regeneration is required for these
+source/provenance checks. The previous v4 README refers to an earlier-phase
+blind-test status and must not override the manuscript's final frozen protocol.

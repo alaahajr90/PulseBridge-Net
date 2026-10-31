@@ -8,20 +8,20 @@ from config_stage2 import (
     AUX_CORR_WEIGHT,
     AUX_WAVE_WEIGHT,
     AUX_WEIGHT,
+    MORPH_MULTISCALE_LAGS,
+    MORPH_NORM_EPS,
     PSD_NFFT,
     PULSE_BAND_HZ,
     SMOOTH_L1_BETA,
     W_BAND,
     W_CORR,
     W_DERIVATIVE,
+    W_MORPH_D1,
+    W_MORPH_D2,
+    W_MORPH_MULTISCALE,
     W_SPECTRUM,
     W_STD,
     W_WAVE,
-    W_MORPH_FIRST,
-    W_MORPH_SECOND,
-    W_MORPH_MULTISCALE,
-    MORPH_LAGS,
-    MORPH_Z_EPS,
 )
 
 
@@ -40,14 +40,59 @@ def smooth_l1_per_sample(pred, target):
 
 
 def derivative_per_sample(pred, target):
+    # ORIGINAL v3 first-derivative term, preserved unchanged.
     return smooth_l1_per_sample(
         pred[:, 1:] - pred[:, :-1],
         target[:, 1:] - target[:, :-1],
     )
 
 
+def _zshape(x, eps=MORPH_NORM_EPS):
+    """Per-sample normalization used only inside the added morphology losses."""
+    x = x - x.mean(dim=1, keepdim=True)
+    s = x.std(dim=1, keepdim=True, unbiased=False)
+    return x / (s + eps)
+
+
+def normalized_d1_shape_per_sample(pred, target):
+    """Preserve the normalized local slope pattern independent of global scale."""
+    dp = pred[:, 1:] - pred[:, :-1]
+    dy = target[:, 1:] - target[:, :-1]
+    return smooth_l1_per_sample(_zshape(dp), _zshape(dy))
+
+
+def normalized_d2_shape_per_sample(pred, target):
+    """
+    Preserve local curvature/inflection structure.
+    This directly targets the fidelity loss observed in the OOF morphology audit.
+    """
+    dp = pred[:, 1:] - pred[:, :-1]
+    dy = target[:, 1:] - target[:, :-1]
+    ddp = dp[:, 1:] - dp[:, :-1]
+    ddy = dy[:, 1:] - dy[:, :-1]
+    return smooth_l1_per_sample(_zshape(ddp), _zshape(ddy))
+
+
+def multiscale_shape_per_sample(pred, target):
+    """
+    Compare normalized temporal increments at lags 1, 2 and 4.
+    This discourages oversmoothing while remaining differentiable and
+    independent of explicit peak/notch detection.
+    """
+    terms = []
+    for lag in MORPH_MULTISCALE_LAGS:
+        if pred.shape[1] <= lag:
+            continue
+        dp = pred[:, lag:] - pred[:, :-lag]
+        dy = target[:, lag:] - target[:, :-lag]
+        terms.append(smooth_l1_per_sample(_zshape(dp), _zshape(dy)))
+    if not terms:
+        return pred.new_zeros((pred.shape[0],))
+    return torch.stack(terms, dim=1).mean(dim=1)
+
+
 def _spectral_components(pred, target, fps):
-    # Demean; rFFT power.
+    # ORIGINAL v3 spectral term, preserved unchanged.
     p = pred - pred.mean(dim=1, keepdim=True)
     y = target - target.mean(dim=1, keepdim=True)
     P = torch.fft.rfft(p, n=PSD_NFFT, dim=1).abs().square()
@@ -68,65 +113,38 @@ def _spectral_components(pred, target, fps):
 
     spectrum = (P_norm - Y_norm).abs().sum(dim=1) * 0.5
 
-    total_pred = P[:, 1:].sum(dim=1) + 1e-8  # exclude DC
+    total_pred = P[:, 1:].sum(dim=1) + 1e-8
     band_pred = P_band.sum(dim=1)
     band = 1.0 - torch.clamp(band_pred / total_pred, 0.0, 1.0)
     return spectrum, band
 
 
-def z_normalize(x: torch.Tensor, eps: float = MORPH_Z_EPS) -> torch.Tensor:
-    """Eq. (11): standardize each sample using population std (unbiased=False)."""
-    return (x - x.mean(dim=1, keepdim=True)) / (
-        x.std(dim=1, keepdim=True, unbiased=False) + eps
-    )
-
-
-def first_difference(x: torch.Tensor, lag: int = 1) -> torch.Tensor:
-    """Temporal increment delta_lag x[t] = x[t + lag] - x[t]."""
-    if x.ndim != 2 or lag < 1 or x.size(1) <= lag:
-        raise ValueError(f"Expected [B,T] with T>lag={lag}; got {tuple(x.shape)}")
-    return x[:, lag:] - x[:, :-lag]
-
-
-def second_difference(x: torch.Tensor) -> torch.Tensor:
-    """Second temporal difference, delta(delta x), NOT the lag-2 increment."""
-    return first_difference(first_difference(x))
-
-
-def morphology_terms_per_sample(pred: torch.Tensor, target: torch.Tensor):
-    """Manuscript Eqs. (12)–(14): normalized derivatives and lagged increments."""
-    if pred.shape != target.shape or pred.ndim != 2 or pred.size(1) <= max(MORPH_LAGS):
-        raise ValueError("Morphology requires two matching [B,T] waveforms, T>max(lags)")
-
-    morph_first = smooth_l1_per_sample(
-        z_normalize(first_difference(pred)),
-        z_normalize(first_difference(target)),
-    )
-    morph_second = smooth_l1_per_sample(
-        z_normalize(second_difference(pred)),
-        z_normalize(second_difference(target)),
-    )
-    morph_multiscale = torch.stack([
-        smooth_l1_per_sample(
-            z_normalize(first_difference(pred, lag)),
-            z_normalize(first_difference(target, lag)),
-        )
-        for lag in MORPH_LAGS
-    ], dim=1).mean(dim=1)
-    return morph_first, morph_second, morph_multiscale
-
-
 class RPPGPhysioCompositeLoss(nn.Module):
-    """Manuscript-aligned Stage-2 composite objective, Eqs. (15)–(17).
+    """
+    Stage-2 v4 morphology-preserving objective.
 
-    Derived from the supplied v3 archive. Three morphology terms were added
-    for source-level alignment; no claim is made that this file generated the
-    previously reported experimental checkpoints or results.
+    ORIGINAL v3 objective (unchanged):
+      3.00 * (1 - Pearson)
+    + 0.75 * SmoothL1 waveform
+    + 0.50 * SmoothL1 raw first derivative
+    + 0.75 * normalized pulse-band spectral distance
+    + 0.05 * out-of-band energy penalty
+    + 0.25 * |std(pred)-std(target)|
+    + 0.15 * mean(aux_corr + aux_wave)
+
+    ONLY v4 additions:
+    + 0.15 * normalized first-derivative shape loss
+    + 0.35 * normalized second-derivative shape loss
+    + 0.20 * normalized multi-scale temporal-increment loss (lags 1,2,4)
+
+    No BP, rigidity, HR, HRV, RR, attention or target-derived handcrafted
+    peak/notch detector is used.
     """
 
     def forward(self, out, target, fps):
         pred = out["rppg"]
 
+        # ---------------- ORIGINAL v3 components ----------------
         corr = pearson_per_sample(pred, target)
         corr_loss = 1.0 - corr
         wave = smooth_l1_per_sample(pred, target)
@@ -136,20 +154,30 @@ class RPPGPhysioCompositeLoss(nn.Module):
         pred_std = pred.std(dim=1, unbiased=False)
         target_std = target.std(dim=1, unbiased=False)
         std_loss = (pred_std - target_std).abs()
-        morph_first, morph_second, morph_multiscale = morphology_terms_per_sample(pred, target)
 
-        final_per = (
+        baseline_final_per = (
             W_CORR * corr_loss
             + W_WAVE * wave
             + W_DERIVATIVE * derivative
             + W_SPECTRUM * spectrum
             + W_BAND * band
             + W_STD * std_loss
-            + W_MORPH_FIRST * morph_first
-            + W_MORPH_SECOND * morph_second
+        )
+
+        # ---------------- ONLY v4 additions ----------------
+        morph_d1 = normalized_d1_shape_per_sample(pred, target)
+        morph_d2 = normalized_d2_shape_per_sample(pred, target)
+        morph_multiscale = multiscale_shape_per_sample(pred, target)
+
+        morphology_per = (
+            W_MORPH_D1 * morph_d1
+            + W_MORPH_D2 * morph_d2
             + W_MORPH_MULTISCALE * morph_multiscale
         )
 
+        final_per = baseline_final_per + morphology_per
+
+        # ---------------- ORIGINAL v3 auxiliary supervision ----------------
         aux_losses = []
         for aux in out["aux_rppg"]:
             aux_corr = 1.0 - pearson_per_sample(aux, target)
@@ -172,6 +200,16 @@ class RPPGPhysioCompositeLoss(nn.Module):
             "total_per_sample": total_per,
             "final": final_per.mean(),
             "final_per_sample": final_per,
+            "baseline_final": baseline_final_per.mean(),
+            "baseline_final_per_sample": baseline_final_per,
+            "morphology": morphology_per.mean(),
+            "morphology_per_sample": morphology_per,
+            "morph_d1": morph_d1.mean(),
+            "morph_d1_per_sample": morph_d1,
+            "morph_d2": morph_d2.mean(),
+            "morph_d2_per_sample": morph_d2,
+            "morph_multiscale": morph_multiscale.mean(),
+            "morph_multiscale_per_sample": morph_multiscale,
             "corr_loss": corr_loss.mean(),
             "corr_loss_per_sample": corr_loss,
             "wave": wave.mean(),
@@ -184,12 +222,6 @@ class RPPGPhysioCompositeLoss(nn.Module):
             "band_per_sample": band,
             "std_loss": std_loss.mean(),
             "std_loss_per_sample": std_loss,
-            "morph_first": morph_first.mean(),
-            "morph_first_per_sample": morph_first,
-            "morph_second": morph_second.mean(),
-            "morph_second_per_sample": morph_second,
-            "morph_multiscale": morph_multiscale.mean(),
-            "morph_multiscale_per_sample": morph_multiscale,
             "aux_mean": aux_mean.mean(),
             "aux_mean_per_sample": aux_mean,
             "aux_per_sample": aux_stack,

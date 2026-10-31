@@ -1,17 +1,10 @@
 {
   "package": "PulseBridge-Net Stage 2",
-  "version": "paper_aligned_derived_v4_candidate",
-  "parent_source": "uploaded code stage2_new.zip (FINAL_v3)",
-  "status": "source_equations_aligned_not_historical_verified",
-  "manuscript_equations": [
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17
-  ],
-  "blind_test_policy": "unchanged: excluded during training and model selection",
-  "note": "Requires original v4 sources and checkpoint hashes for provenance verification"
+  "version": "v4_morphology_preserving_original_linux_source",
+  "status": "principal_source_hashes_match_training_machine_audit",
+  "source_py_files": 13,
+  "original_path": "/home/hajr/mcd_rppg/code_HR_RR_model/PulseBridge_Net/Stage_2_rPPG_FineTuning_v4_MorphologyPreserving",
+  "checkpoint_sha_verified": false,
+  "original_zip_package_manifest_has_one_mismatch": true,
+  "full_reproduction_not_verified": true
 }

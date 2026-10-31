@@ -41,7 +41,7 @@ def _probe(recordings, stage1_init, batch_size, device):
     out = model(x)
     loss, parts = criterion(out, y, fps)
     if not torch.isfinite(loss):
-        raise RuntimeError(f"Non-finite paper-aligned probe loss: {loss}")
+        raise RuntimeError(f"Non-finite v4 morphology probe loss: {loss}")
     loss.backward()
     optimizer.step()
 
@@ -51,6 +51,9 @@ def _probe(recordings, stage1_init, batch_size, device):
         "probe_loss": float(loss.detach().cpu()),
         "probe_corr_loss": float(parts["corr_loss"].detach().cpu()),
         "probe_std_loss": float(parts["std_loss"].detach().cpu()),
+        "probe_morph_d1": float(parts["morph_d1"].detach().cpu()),
+        "probe_morph_d2": float(parts["morph_d2"].detach().cpu()),
+        "probe_morph_multiscale": float(parts["morph_multiscale"].detach().cpu()),
         "peak_cuda_memory_bytes": peak,
     }
 
@@ -58,12 +61,12 @@ def _probe(recordings, stage1_init, batch_size, device):
 def resolve_or_load_runtime(recordings, stage1_init, device, reprobe=False):
     if RUNTIME_JSON.exists() and not reprobe:
         payload = load_json(RUNTIME_JSON)
-        if payload.get("runtime_contract_version") == "Stage2_PAPER_ALIGNED_DERIVED":
+        if payload.get("runtime_contract_version") == "Stage2_v4_MorphologyPreserving":
             return payload
 
     if device.type != "cuda":
         payload = {
-            "runtime_contract_version": "Stage2_PAPER_ALIGNED_DERIVED",
+            "runtime_contract_version": "Stage2_v4_MorphologyPreserving",
             "device": str(device),
             "batch_size": DEFAULT_CPU_BATCH_SIZE,
             "selection": "fixed CPU fallback",
@@ -89,16 +92,16 @@ def resolve_or_load_runtime(recordings, stage1_init, device, reprobe=False):
             gc.collect()
 
     if chosen is None:
-        raise RuntimeError("No Stage-2 paper-aligned batch candidate fits the GPU.")
+        raise RuntimeError("No Stage-2 v4 morphology batch candidate fits the GPU.")
 
     props = torch.cuda.get_device_properties(device)
     payload = {
-        "runtime_contract_version": "Stage2_PAPER_ALIGNED_DERIVED",
+        "runtime_contract_version": "Stage2_v4_MorphologyPreserving",
         "device": str(device),
         "cuda_device_name": props.name,
         "cuda_total_memory_bytes": int(props.total_memory),
         "batch_size": int(chosen),
-        "selection": "largest paper-aligned candidate passing real forward+backward",
+        "selection": "largest v4 morphology candidate passing real forward+backward",
         "probe_results": results,
     }
     save_json(RUNTIME_JSON, payload)
